@@ -1,0 +1,22 @@
+{
+    "KPlugin": {
+        "Id": "com.github.p3kj.claudemeter",
+        "Name": "Claude Meter",
+        "Description": "Plasma applet for monitoring Claude Code rate limits",
+        "Icon": "network-connect",
+        "Authors": [
+            {
+                "Name": "p3kj",
+                "Email": "p3k.jaros@gmail.com"
+            }
+        ],
+        "Category": "Utilities",
+        "Website": "https://github.com/p3kj/plasma-applet-claudemeter",
+        "Version": "0.1.0",
+        "License": "MIT"
+    },
+    "KPackageStructure": "Plasma/Applet",
+    "X-Plasma-API": "declarativeappletscript",
+    "X-Plasma-API-Minimum-Version": "6.0",
+    "X-Plasma-MainScript": "ui/main.qml"
+}

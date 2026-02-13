@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                          http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+    <kcfgfile name=""/>
+
+    <group name="General">
+        <entry name="pollInterval" type="Int">
+            <label>Polling interval in seconds</label>
+            <default>900</default>
+        </entry>
+        <entry name="activityCheckInterval" type="Int">
+            <label>Activity check interval in seconds</label>
+            <default>10</default>
+        </entry>
+        <entry name="warningThreshold" type="Int">
+            <label>Warning threshold percentage</label>
+            <default>80</default>
+        </entry>
+        <entry name="criticalThreshold" type="Int">
+            <label>Critical threshold percentage</label>
+            <default>95</default>
+        </entry>
+        <entry name="compactStyle" type="String">
+            <label>Compact representation style</label>
+            <default>bars</default>
+        </entry>
+        <entry name="compactMetric" type="String">
+            <label>Metric shown in gauge mode</label>
+            <default>five_hour</default>
+        </entry>
+        <entry name="gaugeLabel" type="String">
+            <label>Label shown inside gauge</label>
+            <default>time</default>
+        </entry>
+        <entry name="currencySymbol" type="String">
+            <label>Currency symbol for extra usage</label>
+            <default>$</default>
+        </entry>
+        <entry name="normalColor" type="String">
+            <label>Normal usage bar color</label>
+            <default>#D77757</default>
+        </entry>
+        <entry name="warningColor" type="String">
+            <label>Warning usage bar color</label>
+            <default>#E5C07B</default>
+        </entry>
+    </group>
+</kcfg>
