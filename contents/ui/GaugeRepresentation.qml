@@ -10,12 +10,27 @@ Item {
     readonly property real utilization: root.compactUtil
     readonly property string resetsAt: root.compactResets
     readonly property color arcColor: root.compactColor
+    readonly property bool isDark: Kirigami.Theme.backgroundColor.hslLightness < 0.5
+    readonly property color trackColor: isDark ? "#33373B" : "#E5E7E8"
 
     Layout.minimumWidth: Kirigami.Units.gridUnit
     Layout.minimumHeight: Kirigami.Units.gridUnit
     Layout.preferredWidth: height
     Layout.preferredHeight: height
 
+    // Background track — always visible
+    Charts.PieChart {
+        anchors.fill: parent
+        fromAngle: -180
+        toAngle: 180
+        smoothEnds: true
+        thickness: Kirigami.Units.smallSpacing * 1.1
+        range { from: 0; to: 100; automatic: false }
+        valueSources: Charts.SingleValueSource { value: 100 }
+        colorSource: Charts.SingleValueSource { value: gaugeRep.trackColor }
+    }
+
+    // Foreground usage arc
     Charts.PieChart {
         id: pie
         anchors.fill: parent

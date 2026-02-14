@@ -2,7 +2,7 @@
 
 A KDE Plasma 6 panel applet that monitors your Claude Code rate limits.
 
-<!-- ![Screenshot](screenshot.png) -->
+![screenshot.png](screenshot.png)
 
 ## Features
 
