@@ -5,6 +5,7 @@
 set -euo pipefail
 
 CRED_FILE="$HOME/.claude/.credentials.json"
+CACHE_FILE="$HOME/.cache/claudemeter/last_usage.json"
 
 error_json() {
     python3 -c "import json,sys; print(json.dumps({'error':sys.argv[1],'message':sys.argv[2]}))" "$1" "$2"
@@ -48,13 +49,28 @@ HTTP_CODE=$(printf 'header = "Authorization: Bearer %s"\n' "$TOKEN" | \
 
 TOKEN=""
 
-if [ "$HTTP_CODE" != "200" ]; then
+if [ "$HTTP_CODE" = "429" ]; then
+    if [ -f "$CACHE_FILE" ]; then
+        python3 -c "
+import json, sys
+try:
+    with open(sys.argv[1]) as f:
+        data = json.load(f)
+    data['cached'] = True
+    data['rate_limited'] = True
+    json.dump(data, sys.stdout)
+    sys.exit(0)
+except Exception:
+    pass" "$CACHE_FILE" && exit 0
+    fi
+    error_json "rate_limited" "Rate limited. No cached data available."
+elif [ "$HTTP_CODE" != "200" ]; then
     error_json "api_error" "API returned HTTP $HTTP_CODE"
 fi
 
-# Validate and output response - pipe through stdin, never in args
+# Validate, cache, and output response - pipe through stdin, never in args
 python3 -c "
-import json, sys
+import json, sys, os, time
 try:
     data = json.load(sys.stdin)
     if 'error' in data:
@@ -63,6 +79,11 @@ try:
             msg = msg.get('message', str(data))
         json.dump({'error': 'api_error', 'message': str(msg)}, sys.stdout)
     else:
+        data['_fetched_at'] = int(time.time())
+        cache_dir = os.path.expanduser('~/.cache/claudemeter')
+        os.makedirs(cache_dir, exist_ok=True)
+        with open(os.path.join(cache_dir, 'last_usage.json'), 'w') as f:
+            json.dump(data, f)
         json.dump(data, sys.stdout)
 except Exception:
     json.dump({'error': 'parse_error', 'message': 'Invalid JSON from API'}, sys.stdout)

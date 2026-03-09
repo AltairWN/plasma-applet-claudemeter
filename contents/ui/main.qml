@@ -19,7 +19,7 @@ PlasmoidItem {
     property bool hasError: false
     property string errorMessage: ""
     property bool loading: true
-    property date lastUpdated: new Date()
+    property date lastUpdated: new Date(0)
 
     // --- Extra usage ---
     property bool hasExtraUsage: false
@@ -28,8 +28,18 @@ PlasmoidItem {
     property string extraUsageLimit: ""
     property string extraUsageUsed: ""
 
+    // --- Cache state ---
+    property bool dataCached: false
+
     // --- Activity monitor state ---
     property real lastActivityMtime: 0
+
+    // --- Rate limiting ---
+    property real lastFetchTime: 0
+    property int cooldownMs: 60000
+    property int backoffMultiplier: 1
+    property int maxBackoffMultiplier: 8
+    property bool fetchInFlight: false
 
     // --- Config ---
     readonly property int pollInterval: plasmoid.configuration.pollInterval * 1000
@@ -63,12 +73,30 @@ PlasmoidItem {
     }
 
     function fetchUsage() {
+        root.fetchInFlight = true
         root.loading = true
+        root.lastFetchTime = Date.now()
+        fetchTimeoutTimer.restart()
         var scriptPath = decodeURIComponent(Qt.resolvedUrl("../scripts/fetch_usage.sh").toString().replace(/^file:\/\//, ""))
         executable.exec("bash " + scriptPath)
     }
 
+    function requestFetch(source) {
+        if (root.fetchInFlight) return
+
+        var bypass = (source === "startup" || source === "manual")
+        if (!bypass) {
+            var elapsed = Date.now() - root.lastFetchTime
+            if (elapsed < root.cooldownMs * root.backoffMultiplier) return
+        }
+
+        pollTimer.restart()
+        root.fetchUsage()
+    }
+
     function parseUsageData(stdout) {
+        fetchTimeoutTimer.stop()
+        root.fetchInFlight = false
         root.loading = false
         try {
             var data = JSON.parse(stdout)
@@ -104,7 +132,18 @@ PlasmoidItem {
                 root.extraUsageEnabled = false
             }
 
-            root.lastUpdated = new Date()
+            root.dataCached = !!data.cached
+            if (data.rate_limited) {
+                root.backoffMultiplier = Math.min(root.backoffMultiplier * 2, root.maxBackoffMultiplier)
+            } else {
+                root.backoffMultiplier = 1
+            }
+
+            if (data.cached && data._fetched_at) {
+                root.lastUpdated = new Date(data._fetched_at * 1000)
+            } else {
+                root.lastUpdated = new Date()
+            }
         } catch (e) {
             root.hasError = true
             root.errorMessage = "Failed to parse response"
@@ -172,13 +211,29 @@ PlasmoidItem {
         Component.onCompleted: activityChecker.check()
     }
 
+    // --- Fetch timeout recovery ---
+    Timer {
+        id: fetchTimeoutTimer
+        interval: 30000
+        running: false
+        repeat: false
+        onTriggered: {
+            var cmd = "bash " + decodeURIComponent(Qt.resolvedUrl("../scripts/fetch_usage.sh").toString().replace(/^file:\/\//, ""))
+            executable.disconnectSource(cmd)
+            root.fetchInFlight = false
+            root.loading = false
+            root.hasError = true
+            root.errorMessage = "Request timed out"
+        }
+    }
+
     // --- Delay before fetching after activity ---
     Timer {
         id: fetchDelayTimer
         interval: 15000
         running: false
         repeat: false
-        onTriggered: root.fetchUsage()
+        onTriggered: root.requestFetch("activity")
     }
 
     // --- Polling timer ---
@@ -187,8 +242,8 @@ PlasmoidItem {
         interval: root.pollInterval
         running: true
         repeat: true
-        onTriggered: root.fetchUsage()
-        Component.onCompleted: root.fetchUsage()
+        onTriggered: root.requestFetch("poll")
+        Component.onCompleted: root.requestFetch("startup")
     }
 
     // --- Widget setup ---

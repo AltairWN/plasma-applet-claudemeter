@@ -25,7 +25,7 @@ ColumnLayout {
         }
         QQC2.ToolButton {
             icon.name: "view-refresh"
-            onClicked: root.fetchUsage()
+            onClicked: root.requestFetch("manual")
             QQC2.ToolTip.text: "Refresh"
             QQC2.ToolTip.visible: hovered
             enabled: !root.loading
@@ -146,7 +146,7 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.rightMargin: Kirigami.Units.smallSpacing
         Layout.bottomMargin: Kirigami.Units.smallSpacing
-        text: "Updated " + Qt.formatTime(root.lastUpdated, "hh:mm:ss")
+        text: (root.dataCached ? "Cached " : "Updated ") + Qt.formatTime(root.lastUpdated, "hh:mm:ss")
         font: Kirigami.Theme.smallFont
         color: Kirigami.Theme.disabledTextColor
         horizontalAlignment: Text.AlignRight
