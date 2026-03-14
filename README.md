@@ -1,5 +1,7 @@
 # Claude Meter
 
+[![Available on the KDE Store](https://img.shields.io/badge/KDE%20Store-Get%20It-blue?logo=kde)](https://www.pling.com/p/2348058/)
+
 A KDE Plasma 6 panel applet that monitors your Claude Code rate limits.
 
 ![screenshot.png](screenshot.png)
@@ -31,6 +33,12 @@ A KDE Plasma 6 panel applet that monitors your Claude Code rate limits.
 
 ## Install
 
+### From the KDE Store
+
+Browse to [Claude Meter on the KDE Store](https://www.pling.com/p/2348058/) and click **Install**, or use Discover (KDE's software center) to search for "Claude Meter".
+
+### From source
+
 ```sh
 git clone https://github.com/p3kj/plasma-applet-claudemeter.git
 cd plasma-applet-claudemeter
@@ -54,6 +62,13 @@ Right-click the widget and select "Configure...". Options include:
 - **Poll interval** — how often to fetch usage data (default: 900s)
 - **Warning / Critical thresholds** — percentage thresholds for color changes
 - **Colors** — customize the normal and warning bar colors
+
+## Troubleshooting
+
+- **Widget shows a warning icon** — make sure you are signed into the Claude Code CLI (`claude` in a terminal). The widget reads your OAuth token from `~/.claude/.credentials.json`, which is created on sign-in.
+- **"Unauthorized" or 401 errors** — your token may have expired. Run `claude` again to refresh it.
+- **No data after install** — wait for the first poll interval (default 15 minutes), or right-click the widget and reconfigure with a shorter interval for testing.
+- **429 "Too Many Requests" errors** — the Anthropic API rate-limits usage polling. The default 15-minute interval should be safe, but if you set a very short poll interval you may get throttled. Increase the interval in the widget configuration if this happens.
 
 ## License
 
