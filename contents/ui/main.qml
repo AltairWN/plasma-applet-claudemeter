@@ -14,8 +14,9 @@ PlasmoidItem {
     property string fiveHourResets: ""
     property real sevenDayUtil: 0
     property string sevenDayResets: ""
-    property real sevenDaySonnetUtil: 0
-    property string sevenDaySonnetResets: ""
+    // Per-model weekly limits, discovered dynamically from any `seven_day_*`
+    // field in the API response. Each entry: { key, label, util, resets }.
+    property var weeklyModels: []
     property bool hasError: false
     property string errorMessage: ""
     property bool loading: true
@@ -49,11 +50,19 @@ PlasmoidItem {
 
     // --- Compact gauge computed properties ---
     readonly property string compactMetric: plasmoid.configuration.compactMetric
+    // Picks the most-utilized active model-specific weekly, or an empty stub.
+    readonly property var topWeeklyModel: {
+        var top = { util: 0, resets: "" }
+        for (var i = 0; i < weeklyModels.length; i++) {
+            if (weeklyModels[i].util > top.util) top = weeklyModels[i]
+        }
+        return top
+    }
     readonly property real compactUtil: compactMetric === "seven_day" ? sevenDayUtil
-        : compactMetric === "seven_day_sonnet" ? sevenDaySonnetUtil
+        : (compactMetric === "model_weekly" || compactMetric === "seven_day_sonnet") ? topWeeklyModel.util
         : fiveHourUtil
     readonly property string compactResets: compactMetric === "seven_day" ? sevenDayResets
-        : compactMetric === "seven_day_sonnet" ? sevenDaySonnetResets
+        : (compactMetric === "model_weekly" || compactMetric === "seven_day_sonnet") ? topWeeklyModel.resets
         : fiveHourResets
     readonly property color compactColor: usageColor(compactUtil)
 
@@ -116,10 +125,24 @@ PlasmoidItem {
                 root.sevenDayUtil = data.seven_day.utilization || 0
                 root.sevenDayResets = data.seven_day.resets_at || ""
             }
-            if (data.seven_day_sonnet) {
-                root.sevenDaySonnetUtil = data.seven_day_sonnet.utilization || 0
-                root.sevenDaySonnetResets = data.seven_day_sonnet.resets_at || ""
+
+            var weeklies = []
+            for (var key in data) {
+                if (key === "seven_day" || key.indexOf("seven_day_") !== 0) continue
+                var entry = data[key]
+                if (!entry) continue
+                var util = entry.utilization || 0
+                var resets = entry.resets_at || ""
+                if (util <= 0 && !resets) continue
+                weeklies.push({
+                    key: key,
+                    label: root.weeklyLabelFor(key),
+                    util: util,
+                    resets: resets
+                })
             }
+            weeklies.sort(function (a, b) { return b.util - a.util })
+            root.weeklyModels = weeklies
 
             if (data.extra_usage) {
                 root.hasExtraUsage = true
@@ -151,6 +174,15 @@ PlasmoidItem {
     }
 
     // --- Helper functions ---
+    function weeklyLabelFor(key) {
+        var suffix = key.replace(/^seven_day_/, "")
+        var parts = suffix.split("_")
+        for (var i = 0; i < parts.length; i++) {
+            parts[i] = parts[i].charAt(0).toUpperCase() + parts[i].slice(1)
+        }
+        return "Weekly (" + parts.join(" ") + ")"
+    }
+
     function usageColor(percent) {
         if (percent >= root.criticalThreshold) {
             return Kirigami.Theme.negativeTextColor

@@ -10,9 +10,20 @@ Item {
     readonly property bool isVertical: plasmoid.formFactor === PlasmaCore.Types.Vertical
     readonly property int barThickness: Math.max(3, Math.round(
         (isVertical ? barsRep.width : barsRep.height) / 5))
+    readonly property var barModel: {
+        var bars = [
+            { util: root.fiveHourUtil },
+            { util: root.sevenDayUtil }
+        ]
+        for (var i = 0; i < root.weeklyModels.length; i++) {
+            bars.push({ util: root.weeklyModels[i].util })
+        }
+        return bars
+    }
+    readonly property int barCount: barModel.length
 
-    Layout.minimumWidth: isVertical ? Kirigami.Units.gridUnit : barThickness * 3 + 4
-    Layout.minimumHeight: isVertical ? barThickness * 3 + 4 : Kirigami.Units.gridUnit
+    Layout.minimumWidth: isVertical ? Kirigami.Units.gridUnit : barThickness * barCount + (barCount + 1)
+    Layout.minimumHeight: isVertical ? barThickness * barCount + (barCount + 1) : Kirigami.Units.gridUnit
     Layout.preferredWidth: Layout.minimumWidth
     Layout.preferredHeight: Layout.minimumHeight
 
@@ -23,11 +34,7 @@ Item {
         rotation: isVertical ? 90 : 0
 
         Repeater {
-            model: [
-                { util: root.fiveHourUtil },
-                { util: root.sevenDayUtil },
-                { util: root.sevenDaySonnetUtil }
-            ]
+            model: barsRep.barModel
 
             Rectangle {
                 Layout.fillHeight: true

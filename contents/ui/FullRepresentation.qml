@@ -76,12 +76,15 @@ ColumnLayout {
             resetTime: root.formatResetTime(root.sevenDayResets)
         }
 
-        UsageBar {
-            Layout.fillWidth: true
-            label: "Weekly (Sonnet)"
-            percentage: root.sevenDaySonnetUtil
-            barColor: root.usageColor(root.sevenDaySonnetUtil)
-            resetTime: root.formatResetTime(root.sevenDaySonnetResets)
+        Repeater {
+            model: root.weeklyModels
+            UsageBar {
+                Layout.fillWidth: true
+                label: modelData.label
+                percentage: modelData.util
+                barColor: root.usageColor(modelData.util)
+                resetTime: root.formatResetTime(modelData.resets)
+            }
         }
     }
 

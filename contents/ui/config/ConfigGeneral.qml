@@ -43,7 +43,7 @@ KCM.SimpleKCM {
     readonly property var metricModel: [
         { value: "five_hour", label: "5-Hour Window" },
         { value: "seven_day", label: "Weekly All" },
-        { value: "seven_day_sonnet", label: "Weekly Sonnet" }
+        { value: "model_weekly", label: "Weekly (top model)" }
     ]
 
     Kirigami.FormLayout {

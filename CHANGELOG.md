@@ -1,6 +1,13 @@
 # Changelog
 
-## 0.2.0 — 2026-03-09
+## 0.3.0 - 2026-04-20
+
+- Replace hardcoded Sonnet weekly bar with dynamic per-model weeklies: the widget now shows any active `seven_day_*` entry returned by the API (e.g. Opus, Cowork), so new model tiers appear without a widget update
+- Labels are derived from the API key name (e.g. `seven_day_opus` becomes "Weekly (Opus)")
+- Gauge "Weekly Sonnet" option replaced with "Weekly (top model)", which tracks the most-utilized per-model weekly. Existing configs pointing at `seven_day_sonnet` map to this automatically
+- Compact bar strip now sizes itself to the actual number of active limits instead of a fixed 3
+
+## 0.2.0 - 2026-03-09
 
 - Add rate limiting with cooldown and exponential backoff to avoid hammering the API
 - Cache successful responses to disk; serve cached data on HTTP 429
@@ -11,7 +18,7 @@
 - Show "Cached" label with original fetch timestamp when serving cached data
 - Fix initial lastUpdated from current time to epoch so first-fetch errors surface properly
 
-## 0.1.0 — 2026-02-14
+## 0.1.0 - 2026-02-14
 
 Initial release.
 

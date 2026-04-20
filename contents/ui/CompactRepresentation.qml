@@ -17,9 +17,19 @@ MouseArea {
     hoverEnabled: true
     QQC2.ToolTip {
         id: tooltip
-        text: root.hasError
-            ? root.errorMessage
-            : "5h: " + Math.round(root.fiveHourUtil) + "% | 7d: " + Math.round(root.sevenDayUtil) + "% | Sonnet: " + Math.round(root.sevenDaySonnetUtil) + "%"
+        text: {
+            if (root.hasError) return root.errorMessage
+            var parts = [
+                "5h: " + Math.round(root.fiveHourUtil) + "%",
+                "7d: " + Math.round(root.sevenDayUtil) + "%"
+            ]
+            for (var i = 0; i < root.weeklyModels.length; i++) {
+                var m = root.weeklyModels[i]
+                var name = m.label.replace(/^Weekly \(|\)$/g, "")
+                parts.push(name + ": " + Math.round(m.util) + "%")
+            }
+            return parts.join(" | ")
+        }
         visible: compactRep.containsMouse
     }
 
