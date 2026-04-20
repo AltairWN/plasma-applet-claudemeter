@@ -8,6 +8,13 @@ import org.kde.kquickcontrols as KQC
 KCM.SimpleKCM {
     id: configGeneral
 
+    // Migrate legacy value: seven_day_sonnet is no longer an active API limit.
+    Component.onCompleted: {
+        if (cfg_compactMetric === "seven_day_sonnet") {
+            cfg_compactMetric = "model_weekly"
+        }
+    }
+
     property alias cfg_pollInterval: pollIntervalSpinBox.value
     property alias cfg_activityCheckInterval: activityCheckSpinBox.value
     property alias cfg_warningThreshold: warningSpinBox.value

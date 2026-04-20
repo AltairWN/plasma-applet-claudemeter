@@ -59,10 +59,10 @@ PlasmoidItem {
         return top
     }
     readonly property real compactUtil: compactMetric === "seven_day" ? sevenDayUtil
-        : (compactMetric === "model_weekly" || compactMetric === "seven_day_sonnet") ? topWeeklyModel.util
+        : compactMetric === "model_weekly" ? topWeeklyModel.util
         : fiveHourUtil
     readonly property string compactResets: compactMetric === "seven_day" ? sevenDayResets
-        : (compactMetric === "model_weekly" || compactMetric === "seven_day_sonnet") ? topWeeklyModel.resets
+        : compactMetric === "model_weekly" ? topWeeklyModel.resets
         : fiveHourResets
     readonly property color compactColor: usageColor(compactUtil)
 
@@ -141,7 +141,10 @@ PlasmoidItem {
                     resets: resets
                 })
             }
-            weeklies.sort(function (a, b) { return b.util - a.util })
+            weeklies.sort(function (a, b) {
+                if (b.util !== a.util) return b.util - a.util
+                return a.key < b.key ? -1 : a.key > b.key ? 1 : 0
+            })
             root.weeklyModels = weeklies
 
             if (data.extra_usage) {
