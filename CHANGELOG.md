@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 - 2026-04-26
+
+- Fix plasmashell crash when expanding the popup (KDE bug 489365): wrap `FullRepresentation` root in a plain `Item` so the popup-sizing path no longer recurses through a `QQuickLayout` root and dereferences a null `QQuickLayoutAttached`
+
 ## 0.3.0 - 2026-04-20
 
 - Replace hardcoded Sonnet weekly bar with dynamic per-model weeklies: the widget now shows any active `seven_day_*` entry returned by the API (e.g. Opus, Cowork), so new model tiers appear without a widget update

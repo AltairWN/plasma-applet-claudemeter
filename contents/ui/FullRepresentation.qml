@@ -4,13 +4,23 @@ import QtQuick.Controls as QQC2
 
 import org.kde.kirigami as Kirigami
 
-ColumnLayout {
+// Root is a plain Item, not a Layout, to avoid KDE bug 489365:
+// plasmashell crashes in QQuickLayout::effectiveSizePolicy_helper when the
+// popup is first expanded if the fullRepresentation root is a QQuickLayout.
+Item {
     id: fullRep
 
     Layout.minimumWidth: Kirigami.Units.gridUnit * 14
     Layout.preferredWidth: Kirigami.Units.gridUnit * 16
+    Layout.minimumHeight: content.implicitHeight
+    Layout.preferredHeight: content.implicitHeight
+    implicitWidth: Kirigami.Units.gridUnit * 16
+    implicitHeight: content.implicitHeight
 
-    spacing: Kirigami.Units.smallSpacing
+    ColumnLayout {
+        id: content
+        anchors.fill: parent
+        spacing: Kirigami.Units.smallSpacing
 
     // Header
     RowLayout {
@@ -153,5 +163,6 @@ ColumnLayout {
         font: Kirigami.Theme.smallFont
         color: Kirigami.Theme.disabledTextColor
         horizontalAlignment: Text.AlignRight
+    }
     }
 }
