@@ -63,6 +63,7 @@ Right-click the widget and select "Configure...". Options include:
 - **Poll interval** - how often to fetch usage data (default: 900s)
 - **Warning / Critical thresholds** - percentage thresholds for color changes
 - **Colors** - customize the normal and warning bar colors
+- **Claude folder** - path to an alternate Claude config folder (default: `~/.claude`). Useful if you run multiple accounts via `CLAUDE_CONFIG_DIR`, e.g. `~/.claude-personal`. Add one widget instance per account to monitor them side by side
 
 ## Troubleshooting
 

@@ -47,6 +47,7 @@ PlasmoidItem {
     readonly property int activityCheckInterval: plasmoid.configuration.activityCheckInterval * 1000
     readonly property int warningThreshold: plasmoid.configuration.warningThreshold
     readonly property int criticalThreshold: plasmoid.configuration.criticalThreshold
+    readonly property string claudeFolder: plasmoid.configuration.claudeFolder
 
     // --- Compact gauge computed properties ---
     readonly property string compactMetric: plasmoid.configuration.compactMetric
@@ -87,7 +88,10 @@ PlasmoidItem {
         root.lastFetchTime = Date.now()
         fetchTimeoutTimer.restart()
         var scriptPath = decodeURIComponent(Qt.resolvedUrl("../scripts/fetch_usage.sh").toString().replace(/^file:\/\//, ""))
-        executable.exec("bash " + scriptPath)
+        var folder = root.claudeFolder.trim()
+        var cmd = "bash \"" + scriptPath + "\""
+        if (folder) cmd += " \"" + folder + "\""
+        executable.exec(cmd)
     }
 
     function requestFetch(source) {
@@ -231,8 +235,12 @@ PlasmoidItem {
             disconnectSource(sourceName)
         }
         function check() {
+            var folder = root.claudeFolder.trim()
+            // Expand leading ~ since this runs in a non-login shell
+            if (folder.charAt(0) === "~") folder = "$HOME" + folder.slice(1)
+            var dir = folder || "$HOME/.claude"
             // GNU stat format — Linux-only, which is fine since this is a KDE Plasma widget
-            connectSource("stat --format=%Y $HOME/.claude/history.jsonl 2>/dev/null || echo 0")
+            connectSource("stat --format=%Y \"" + dir + "/history.jsonl\" 2>/dev/null || echo 0")
         }
     }
 
@@ -253,7 +261,10 @@ PlasmoidItem {
         running: false
         repeat: false
         onTriggered: {
-            var cmd = "bash " + decodeURIComponent(Qt.resolvedUrl("../scripts/fetch_usage.sh").toString().replace(/^file:\/\//, ""))
+            var scriptPath = decodeURIComponent(Qt.resolvedUrl("../scripts/fetch_usage.sh").toString().replace(/^file:\/\//, ""))
+            var folder = root.claudeFolder.trim()
+            var cmd = "bash \"" + scriptPath + "\""
+            if (folder) cmd += " \"" + folder + "\""
             executable.disconnectSource(cmd)
             root.fetchInFlight = false
             root.loading = false

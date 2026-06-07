@@ -4,7 +4,12 @@
 
 set -euo pipefail
 
-CRED_FILE="$HOME/.claude/.credentials.json"
+# Optional first arg: custom Claude folder path (e.g. ~/.claude-personal)
+CLAUDE_DIR="${1:-$HOME/.claude}"
+# Expand leading ~ in case user typed it literally
+CLAUDE_DIR="${CLAUDE_DIR/#\~/$HOME}"
+
+CRED_FILE="$CLAUDE_DIR/.credentials.json"
 CACHE_FILE="$HOME/.cache/claudemeter/last_usage.json"
 
 error_json() {

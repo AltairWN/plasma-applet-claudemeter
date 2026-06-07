@@ -25,6 +25,7 @@ KCM.SimpleKCM {
     property string cfg_normalColor
     property string cfg_warningColor
     property alias cfg_currencySymbol: currencyField.text
+    property string cfg_claudeFolder
 
     // Defaults injected by Plasma config system
     property var cfg_pollIntervalDefault
@@ -37,6 +38,7 @@ KCM.SimpleKCM {
     property var cfg_normalColorDefault
     property var cfg_warningColorDefault
     property var cfg_currencySymbolDefault
+    property var cfg_claudeFolderDefault
 
     readonly property var styleModel: [
         { value: "bars", label: "Bars" },
@@ -163,6 +165,20 @@ KCM.SimpleKCM {
                 if (String(color) !== cfg_warningColor)
                     cfg_warningColor = String(color)
             }
+        }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: "Data Source"
+        }
+
+        QQC2.TextField {
+            id: claudeFolderField
+            Kirigami.FormData.label: "Claude folder:"
+            placeholderText: "~/.claude (default)"
+            implicitWidth: Kirigami.Units.gridUnit * 18
+            text: cfg_claudeFolder
+            onTextChanged: cfg_claudeFolder = text
         }
     }
 }

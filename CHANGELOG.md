@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0 - 2026-06-07
+
+- Add "Claude folder" config option to point the widget at an alternate Claude config folder (e.g. `~/.claude-personal` when using `CLAUDE_CONFIG_DIR` for multiple accounts). Each widget instance can monitor a different account
+- Activity detection follows the configured folder as well
+
 ## 0.3.1 - 2026-04-26
 
 - Fix plasmashell crash when expanding the popup (KDE bug 489365): wrap `FullRepresentation` root in a plain `Item` so the popup-sizing path no longer recurses through a `QQuickLayout` root and dereferences a null `QQuickLayoutAttached`
